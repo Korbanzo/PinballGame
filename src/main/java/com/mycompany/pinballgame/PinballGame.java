@@ -9,7 +9,7 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.shape.Line;
 import javafx.scene.input.KeyCode;
-import java.lang.Math;
+
 /*  
 Power ups: Slow-mo, flame trail, arena change, different obstacles
 
@@ -24,8 +24,15 @@ Make it an achievement to end the game with the golden ball (first try)
 
 
 public class PinballGame extends Application {
+    private static double fpsLock = 60.0;
+    private static final double STEP = 1.0 / fpsLock;
+    private double accumulator = 0;
+    private long lastUpdate = 0;
+    private double deltaSeconds = 0;
+    private final double nanoseconds = 1_000_000_000.00;
+    
     private static final int[] sceneDimensions = {500, 800};
-    public static final double gravityIncrease = 9.8 / 60; // 9.8 ms / 60 fps
+    public static final double gravityIncrease = 1; // 9.8 m/s^2
     private final ArrayList<Ball> ballArray = new ArrayList<>();
     
     // Bounding line properties
@@ -122,12 +129,27 @@ public class PinballGame extends Application {
         stage.show();
         
         // Game loop (timer)
+        // Lock to 60fps
+        
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                for (Ball b : ballArray) {
-                    b.update(gravityIncrease, sceneDimensions);
+                if (lastUpdate > 0) {
+                    System.out.println("Delta Seconds: " + deltaSeconds);
+                    deltaSeconds = (now - lastUpdate) / nanoseconds;
+                    accumulator += deltaSeconds;
+                    
+                    while (accumulator >= STEP) {
+                        System.out.println("Balls Updating");
+                        // Run physics at fixed rate (60 fps)
+                        for (Ball b : ballArray) {
+                            b.update(gravityIncrease, sceneDimensions);
+                        }
+                        accumulator -= STEP;
+                    }
                 }
+                lastUpdate = now;
+
             }
         };
         
