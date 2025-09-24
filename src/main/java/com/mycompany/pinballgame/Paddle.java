@@ -4,7 +4,7 @@ import javafx.scene.transform.Rotate;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
-// This class is for the player to interact with so they can hit the ball.
+// This class is for the paddles that players interact with so they can hit the ball.
 public class Paddle extends Rectangle {
     // Fields
     
@@ -21,8 +21,6 @@ public class Paddle extends Rectangle {
     public Paddle(double x, double y, double length, double height,
                   String pivotDirection, Color color) {
         
-        // pivotDirection: 1 means it turns left
-        // pivotDirectionL 2 means it turns right  
         super(x, y, length, height);
         this.setFill(color);
         
@@ -43,7 +41,6 @@ public class Paddle extends Rectangle {
             pivotY = y + (height / 2);
             rotation = new Rotate(angleRight, pivotX, pivotY);
         }
-        
         
         getTransforms().add(rotation);
        
