@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -18,9 +19,11 @@ Rainbow trail on the ball
 Make it an achievement to end the game with the golden ball (first try)
 
 ********************************************
-*           To - Do                        *
-*   1. Make the ball be flung by paddles   *
-*   2. Make the game a game!               *
+*           To - Do                        *  
+*   1. Score label                         *
+*   2. Bumpers that give points            *
+*   3. More paddles                        *
+*   4. Flinging thingy on the right        *
 ********************************************
 */
 
@@ -37,6 +40,10 @@ public class PinballGame extends Application {
     private static final int[] sceneDimensions = {500, 800};
     public static final double gravityIncrease = Math.pow(9.8, chaos); // idrk why this works honestly perseverance is king
     private final ArrayList<Ball> ballArray = new ArrayList<>();
+    
+    // Score label properties
+    public static int score = 0;
+    public static Label scoreLabel = new Label("" + score);
     
     // Bounding line properties
     public static double leftBoundingLineX = 50;
@@ -72,13 +79,19 @@ public class PinballGame extends Application {
         final double extraPinballX = pinballX; 
         double extraPinballY = (paddleY - 50) + (pinballRadius * 2); // This will change in the for loop of creation
         final double extraBallInitVelX = 0, extraBallInitVelY = 0;
-        final int extraBalls = 5;
+        final int extraBalls = 20;
         final Color extraPinballColor = Color.FORESTGREEN;
         
         // Instantiate main ball
         Ball pinball = new Ball(pinballX, pinballY, pinballRadius, pinballInitVelX, pinballInitVelY, pinballColor);
         ballArray.add(pinball); // Make sure to add every ball to the list!
         
+        // Instantiate score label
+        double scoreLabelX = (rightBoundingLineX + leftBoundingLineX - scoreLabel.getWidth()) / 2;
+        double scoreLabelY = sceneDimensions[1] / 8;
+        scoreLabel.relocate(scoreLabelX, scoreLabelY);
+
+
         // Instantiate bounding lines     
         Line leftBoundingLine = new Line();
         leftBoundingLine.setStartX(leftBoundingLineX);
@@ -92,7 +105,7 @@ public class PinballGame extends Application {
         rightBoundingLine.setEndX(rightBoundingLineX);
         rightBoundingLine.setEndY(sceneDimensions[1]); // Bottom of the screen
         
-        Group root = new Group(leftPaddle, rightPaddle, pinball, leftBoundingLine, rightBoundingLine);
+        Group root = new Group(leftPaddle, rightPaddle, pinball, leftBoundingLine, rightBoundingLine, scoreLabel);
         
         // Instantiate extra balls
         for (int extraBall = 1; extraBall <= extraBalls; extraBall++) {

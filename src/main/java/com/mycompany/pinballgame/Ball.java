@@ -1,5 +1,7 @@
 package com.mycompany.pinballgame;
 
+import java.util.HashSet;
+import java.util.Set;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
@@ -167,6 +169,14 @@ public class Ball extends Circle {
             // Push ball slightly away from paddle so it doesn't "stick"
             currX += Math.cos(theta) * this.getRadius();
             currY += Math.sin(theta) * this.getRadius();
+            
+            updateScoreLabel();
         }
+    }
+    
+    private void updateScoreLabel() {
+        PinballGame.scoreLabel.setText("" + ++PinballGame.score);
+        
+        
     }
 }
