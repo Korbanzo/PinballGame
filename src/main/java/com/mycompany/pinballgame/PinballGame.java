@@ -27,7 +27,6 @@ Make it an achievement to end the game with the golden ball (first try)
 ********************************************
 */
 
-
 public class PinballGame extends Application {
     private static double fpsLock = 60.0;
     private static final double STEP = 1.0 / fpsLock;
@@ -37,7 +36,7 @@ public class PinballGame extends Application {
     private final double nanoseconds = 1_000_000_000.00;
     public static double chaos = 3.5;
     
-    private static final int[] sceneDimensions = {500, 800};
+    public static final int[] sceneDimensions = {500, 800};
     public static final double gravityIncrease = Math.pow(9.8, chaos); // idrk why this works honestly perseverance is king
     private final ArrayList<Ball> ballArray = new ArrayList<>();
     
@@ -50,34 +49,43 @@ public class PinballGame extends Application {
     public static double rightBoundingLineX = sceneDimensions[0] - 50;
     public static double rightBoundingLineStartY = 100; // Offset for allowing the ball to exit on launch
     
-    // Paddle properties
+    // Paddle properties (universal)
     private static KeyCode leftPaddleButton = KeyCode.Q; // Left paddle button is Q
     private static KeyCode rightPaddleButton = KeyCode.E; // Right paddle button is E
     private static final Color paddleColor = Color.BLACK;
-    public static final double paddleLength = 100, paddleHeight = 20;
-    public static final double leftPaddleX = sceneDimensions[0] / 2 - (paddleLength * 1.5);
-    public static final double rightPaddleX = sceneDimensions[0] / 2 + (paddleLength / 2);
-    public static final double paddleY = 700;
     
+    // Paddle properties (bottom)
+    private static final double bottomPaddleLength = 100, bottomPaddleHeight = 20;
+    private static final double bottomLeftPaddleX = sceneDimensions[0] / 2 - (bottomPaddleLength * 1.5);
+    private static final double bottomRightPaddleX = sceneDimensions[0] / 2 + (bottomPaddleLength / 2);
+    private static final double bottomPaddleY = 700;
+    
+    // Paddle properties (upper)
+    private static final double upperPaddleLength = 50, upperPaddleHeight = 10;
+    private static final double upperLeftPaddleX = leftBoundingLineX;
+    private static final double upperRightPaddleX = rightBoundingLineX - upperPaddleLength;
+    private static final double upperPaddleY = 200;
+       
     // Instantiate paddles
-    public static Paddle leftPaddle = new Paddle(leftPaddleX, paddleY, paddleLength, paddleHeight, "Left", paddleColor);
-    public static Paddle rightPaddle = new Paddle(rightPaddleX, paddleY, paddleLength, paddleHeight, "Right", paddleColor);
-
+    public static Paddle bottomLeftPaddle = new Paddle(bottomLeftPaddleX, bottomPaddleY, bottomPaddleLength, bottomPaddleHeight, "Left", paddleColor);
+    public static Paddle bottomRightPaddle = new Paddle(bottomRightPaddleX, bottomPaddleY, bottomPaddleLength, bottomPaddleHeight, "Right", paddleColor);
+    public static Paddle upperLeftPaddle = new Paddle(upperLeftPaddleX, upperPaddleY, upperPaddleLength, upperPaddleHeight, "Left", paddleColor);
+    public static Paddle upperRightPaddle = new Paddle(upperRightPaddleX, upperPaddleY, upperPaddleLength, upperPaddleHeight, "Right", paddleColor);
+            
     // This method creates the scene, and all objects to be placed in it
     @Override
     public void start(Stage stage) {
         // Main pinball properties
-        final double pinballX = leftPaddleX + (paddleLength / 2);
+        final double pinballX = bottomLeftPaddleX + (bottomPaddleLength / 2);
         final double pinballY = 100;
         final double pinballInitVelX = 1, pinballInitVelY = 0;
         final double pinballRadius = 10;
         final Color pinballColor = Color.PURPLE;
         
         // Extra pinball properties
-        
         final double extraPinballRadius = 10;
         final double extraPinballX = pinballX; 
-        double extraPinballY = (paddleY - 50) + (pinballRadius * 2); // This will change in the for loop of creation
+        double extraPinballY = (bottomPaddleY - 50) + (pinballRadius * 2); // This will change in the for loop of creation
         final double extraBallInitVelX = 0, extraBallInitVelY = 0;
         final int extraBalls = 20;
         final Color extraPinballColor = Color.FORESTGREEN;
@@ -87,10 +95,9 @@ public class PinballGame extends Application {
         ballArray.add(pinball); // Make sure to add every ball to the list!
         
         // Instantiate score label
-        double scoreLabelX = (rightBoundingLineX + leftBoundingLineX - scoreLabel.getWidth()) / 2;
+        double scoreLabelX = (rightBoundingLineX + leftBoundingLineX) / 2;
         double scoreLabelY = sceneDimensions[1] / 8;
         scoreLabel.relocate(scoreLabelX, scoreLabelY);
-
 
         // Instantiate bounding lines     
         Line leftBoundingLine = new Line();
@@ -105,7 +112,7 @@ public class PinballGame extends Application {
         rightBoundingLine.setEndX(rightBoundingLineX);
         rightBoundingLine.setEndY(sceneDimensions[1]); // Bottom of the screen
         
-        Group root = new Group(leftPaddle, rightPaddle, pinball, leftBoundingLine, rightBoundingLine, scoreLabel);
+        Group root = new Group(bottomLeftPaddle, bottomRightPaddle, upperLeftPaddle, upperRightPaddle, pinball, leftBoundingLine, rightBoundingLine, scoreLabel);
         
         // Instantiate extra balls
         for (int extraBall = 1; extraBall <= extraBalls; extraBall++) {
@@ -123,24 +130,34 @@ public class PinballGame extends Application {
         // Handling of pivoting the paddles on command
         scene.setOnKeyPressed(pressedKey -> {
             if (pressedKey.getCode() == leftPaddleButton) {
-                leftPaddle.pivot("Pressed");
-                for (Ball b : ballArray)
-                    b.flingBall(leftPaddle);
+                bottomLeftPaddle.pivot("Pressed");
+                upperLeftPaddle.pivot("Pressed");
+                for (Ball b : ballArray) {
+                    b.flingBall(bottomLeftPaddle);
+                    b.flingBall(upperLeftPaddle);
+                }
             }
             
             else if (pressedKey.getCode() == rightPaddleButton) {
-                rightPaddle.pivot("Pressed");
-                for (Ball b : ballArray)
-                    b.flingBall(rightPaddle);
+                bottomRightPaddle.pivot("Pressed");
+                upperRightPaddle.pivot("Pressed");
+                for (Ball b : ballArray) {
+                    b.flingBall(bottomRightPaddle);
+                    b.flingBall(upperLeftPaddle);
+                }
             }
         });
 
         scene.setOnKeyReleased(releasedKey -> {
-            if (releasedKey.getCode() == leftPaddleButton)
-                leftPaddle.pivot("Released");
-
-            else if (releasedKey.getCode() == rightPaddleButton)
-                rightPaddle.pivot("Released");                
+            if (releasedKey.getCode() == leftPaddleButton) {
+                bottomLeftPaddle.pivot("Released");
+                upperLeftPaddle.pivot("Released");
+            }
+            
+            else if (releasedKey.getCode() == rightPaddleButton) {
+                bottomRightPaddle.pivot("Released");              
+                upperRightPaddle.pivot("Released");
+            }
         });
         
         stage.setResizable(false);
@@ -160,7 +177,7 @@ public class PinballGame extends Application {
                     while (accumulator >= STEP) {
                         // Run physics at fixed rate (60 fps)
                         for (Ball b : ballArray) {
-                            b.update(gravityIncrease, STEP, sceneDimensions);
+                            b.update(gravityIncrease, STEP);
                         }
                         accumulator -= STEP;
                     }

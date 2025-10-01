@@ -11,7 +11,8 @@ public class Paddle extends Rectangle {
     private Rotate rotation;
     
     public double length, height;    
-    public double pivotX, pivotY;       
+    public double pivotX, pivotY;  
+    public double x, y;
     public String pivotDirection;
     public double angle;
     public final double angleLeft = 15;
@@ -24,6 +25,8 @@ public class Paddle extends Rectangle {
         super(x, y, length, height);
         this.setFill(color);
         
+        this.x = x;
+        this.y = y;
         this.length = length;
         this.height = height;
         this.pivotDirection = pivotDirection;
