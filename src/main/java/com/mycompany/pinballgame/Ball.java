@@ -116,14 +116,17 @@ public class Ball extends Circle {
     
     public void flingBall(Paddle paddle) {
         if (checkPaddleCollision(paddle)) {
+            // Correct the angle by a factor of -1 since javafx finds angles from clockwise
             double theta = Math.toRadians(-paddle.angle);
             
+            // Set the max speed that ball can fling
             double maxBoingSpeed = 500 * PinballGame.chaos;
+            
             double currSpeed = Math.hypot(velocityX, velocityY);
             
             double newSpeed = currSpeed + maxBoingSpeed;
             
-            
+            // Add to new velocities
             velocityX = newSpeed * Math.cos(theta);
             velocityY = newSpeed * Math.sin(theta);
 
@@ -131,27 +134,54 @@ public class Ball extends Circle {
             currX += Math.cos(theta) * this.getRadius();
             currY += Math.sin(theta) * this.getRadius();
             
+            // Increment score on ball flung
             updateScoreLabel();
         }
     }
     
-    // Overload the method to work with lines as well
-    private double[] getVelocityWithAngle(Paddle paddle) {
+    private double[] getVelocityWithAngle(Paddle paddle) { // This one for paddles
+        // Correct the angle by a factor of -1 since javafx finds angles from clockwise
         double theta = Math.toRadians(-paddle.angle);
+        
+        // Resolve the vector for it's magnitude sqrt(vx^2 + vy^2) = |v|
         
         double speed = Math.hypot(velocityX, velocityY);
         
         double vX = -speed * Math.sin(theta);
         double vY = -speed * Math.cos(theta);
         
+        // Just snag the values from this array when I want to access velocity.
         double[] velocities = {vX, vY};
         return velocities;
     }
     
-    private double getVelocityWithAngle(Line line) {
-        double theta = Math.toRadians(prevX); // get the 
+    private double[] getVelocityWithAngle(Line line) { // This one for lines
+        // Current velocities
+        double vX = velocityX;
+        double vY = velocityY;
         
-        return 0;
+        // Direction vector of our line (passed as argument)
+        double deltaX = line.getEndX() - line.getStartX();
+        double deltaY = line.getEndY() - line.getStartY();
+        
+        // Normalize line direction to make magnitude 1.
+        double length = Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
+        deltaX /= length;
+        deltaY /= length;
+        
+        // Get the vector of orthogonal line either -dy, dx or -dx, dy works
+        double normalX = -deltaY;
+        double normalY = deltaX;
+        
+        // Dot product of both vectors now
+        double dotProduct = (vX * normalX) + (vY * normalY);
+        
+        // Reflection time! Formula: v' = v - 2 * dotProduct * normalDimension
+        double vPrimeX = vX - 2 * dotProduct * normalX;
+        double vPrimeY = vY - 2 * dotProduct * normalY;
+        
+        double[] velocities = {vPrimeX, vPrimeY};
+        return velocities;
     }
     
     
@@ -186,8 +216,12 @@ public class Ball extends Circle {
     private void rightWallHit() {
         // When it hit da right line bounce back
         if (currX + radius >= PinballGame.rightBoundingLineX && prevX + radius <= PinballGame.rightBoundingLineX) {
+            
             currX = PinballGame.rightBoundingLineX - radius;
-            velocityX *= wallHitReduction;  // lose some energy on bounce
+            
+            double[] newVelocities = getVelocityWithAngle(PinballGame.rightBoundingLine);
+            velocityX = newVelocities[0];
+            velocityY = newVelocities[1];
         }
     }
     
@@ -196,7 +230,9 @@ public class Ball extends Circle {
             && prevX - radius >= PinballGame.leftBoundingLineX) {
             
             currX = PinballGame.leftBoundingLineX + radius;
-            velocityX *= wallHitReduction; // bro look at the last one idk
+            double[] newVelocities = getVelocityWithAngle(PinballGame.rightBoundingLine);
+            velocityX = newVelocities[0];
+            velocityY = newVelocities[1];
         }
     }
     

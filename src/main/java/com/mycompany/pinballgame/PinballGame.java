@@ -44,7 +44,10 @@ public class PinballGame extends Application {
     public static int score = 0;
     public static Label scoreLabel = new Label("" + score);
     
-    // Bounding line properties
+    // Instantiate bounding lines     
+    public static Line leftBoundingLine = new Line();
+    public static Line rightBoundingLine = new Line();
+    
     public static double leftBoundingLineX = 50;
     public static double rightBoundingLineX = sceneDimensions[0] - 50;
     public static double rightBoundingLineStartY = 100; // Offset for allowing the ball to exit on launch
@@ -99,18 +102,18 @@ public class PinballGame extends Application {
         double scoreLabelY = sceneDimensions[1] / 8;
         scoreLabel.relocate(scoreLabelX, scoreLabelY);
 
-        // Instantiate bounding lines     
-        Line leftBoundingLine = new Line();
+        // Right bounding line properties        
+        rightBoundingLine.setStartX(rightBoundingLineX);
+        rightBoundingLine.setStartY(rightBoundingLineStartY); // Top of the screen
+        rightBoundingLine.setEndX(rightBoundingLineX);
+        rightBoundingLine.setEndY(sceneDimensions[1]); // Bottom of the screen
+        
+        // Left bounding line properties
         leftBoundingLine.setStartX(leftBoundingLineX);
         leftBoundingLine.setStartY(0); // Top of the screen
         leftBoundingLine.setEndX(leftBoundingLineX);
         leftBoundingLine.setEndY(sceneDimensions[1]); // Bottom of the screen
         
-        Line rightBoundingLine = new Line();
-        rightBoundingLine.setStartX(rightBoundingLineX);
-        rightBoundingLine.setStartY(rightBoundingLineStartY); // Top of the screen
-        rightBoundingLine.setEndX(rightBoundingLineX);
-        rightBoundingLine.setEndY(sceneDimensions[1]); // Bottom of the screen
         
         Group root = new Group(bottomLeftPaddle, bottomRightPaddle, upperLeftPaddle, upperRightPaddle, pinball, leftBoundingLine, rightBoundingLine, scoreLabel);
         
@@ -122,8 +125,6 @@ public class PinballGame extends Application {
             ballArray.add(temp); // Make sure to add every ball to the list!
             root.getChildren().add(temp); // adding each ball to the group
         }
-        
-        System.out.println(root.getChildren().size());
         
         Scene scene = new Scene(root, sceneDimensions[0], sceneDimensions[1]);
 
