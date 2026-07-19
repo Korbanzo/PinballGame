@@ -1,5 +1,7 @@
 # Pinball Game 🎮
 
+https://github.com/user-attachments/assets/d7118a73-00bf-44cf-954b-fa57392d36f0
+
 A custom pinball game built in Java featuring custom physics simulation. Experience fast-paced pinball action with realistic ball dynamics!
 
 ## About
